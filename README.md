@@ -20,3 +20,6 @@ The script works by scanning a defined root folder (e.g., where your Plex TV sho
 * Exclusion List: If the folder matches one of the exclusion folders, it is skipped.
 * Tautulli Watch History: If the folder matches a show that has been watched recently (within a specified number of months), it is skipped.
 * File Count and Size: If the folder has more files than the specified number to keep (e.g., the most recent 3 episodes), the script will ask for confirmation to clean up the excess files.
+
+# License and Disclaimer
+## This script is released under the freedom to clone and use the code. However, I accept no responsibility for any misconfigurations, issues, or outcomes resulting from the use of this script. Use it at your own risk.
