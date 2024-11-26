@@ -11,7 +11,7 @@ https://github.com/TehMuffinMoo/Organizr-Plugins
 * Tautulli Integration: Utilises Tautulli API to determine which TV shows have been watched recently. Shows watched within the last specified number of months are not cleaned up.
 * Folder-Level Cleanup Prompt: Option to prompt for folder-level deletion. The script will ask if the user wants to delete files within a folder that exceeds a certain number of episodes.
 * Report-Only Mode: Option to run the script in report-only mode, where no files are deleted. Instead, the script will only show what would be deleted, useful for testing.
-* Selective Deletion: Only deletes files within a folder that exceed the specified number of episodes (i.e., it keeps the first N amount of episodes, usually first few files within the first season folder) This allows Sonarr throttling plugin to re-download the show files as they are re-watched.
+* Selective Deletion: Deletes only files within a folder that exceed the specified number of episodes (e.g., keeps the first N amount of episodes). This ensures Sonarr throttling plugin can re-download the show files as they are re-watched and the shows are not deleted from plex.
 * Size and Count Reporting: Outputs the total number of files deleted and the space freed in GB or TB. It also provides reports on skipped folders, including their size.
 
 ## How It Works
