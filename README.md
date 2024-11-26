@@ -3,8 +3,7 @@
 ## Overview
 This script is designed to help manage and clean up TV show folders in a Plex server environment. It started as an effort to reduce the size of a growing TV show directory that was filled with outdated or unwatched content. Over time, content accumulated in TBs and required regular cleaning to remove shows that were no longer being watched. The script leverages Tautulli (a Plex monitoring tool) to track which TV shows were recently watched and applies custom cleanup rules to maintain a manageable library size.
 
-The script was initially based on the use of Sonarr Throttling Plugin for Organizr, which can be found here:
-https://github.com/TehMuffinMoo/Organizr-Plugins
+The script was initially based on the use of Sonarr Throttling Plugin for Organizr, which can be found here: [Sonarr Throttling Plugin for Organizr](https://github.com/TehMuffinMoo/Organizr-Plugins)
 
 ## Features
 * Exclusion Folders: A list of folders that will never be touched by the cleanup process, regardless of whether they are watched or not. This helps prevent accidental deletions of important folders.
