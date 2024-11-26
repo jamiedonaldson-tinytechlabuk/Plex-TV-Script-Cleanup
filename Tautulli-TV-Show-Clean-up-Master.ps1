@@ -16,7 +16,7 @@ function Normalize-Name {
     return $Name -replace ":", "-" -replace "\s+", " "
 }
 
-# Configuration
+############################ Configuration ############################
 $RootFolder = "\\IPADDRESS\Plex\TVFOLDER"  # Root folder to look into for the cleanup process (Only Point to a TV folder...Movie folder being included is untested and will have disastrous consequences)
 $ExcludeFolders = @(
     "TVSHOW1",
@@ -35,6 +35,7 @@ $ReportOnly = $false  # Set this to $true for report-only mode (no file deletion
 # Add an option to prompt for folder deletion (set to $true to prompt for folder deletion)
 $PromptForFolderDeletion = $true  # Set to $false to skip folder deletion prompts
 
+############################ End of Configuration ############################
 # Fetch Tautulli watch history
 $StartDate = (Get-Date).AddMonths(-$TautulliMonths).ToString("yyyy-MM-dd")
 
