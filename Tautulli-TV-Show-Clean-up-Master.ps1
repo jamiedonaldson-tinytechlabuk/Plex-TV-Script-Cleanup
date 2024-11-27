@@ -1,6 +1,7 @@
-﻿<#
+<#
 Version History:
 ---------------
+v0.3.5 - Bug fix to prompt for folder deletion only for folders with more than 3 files, not in exclusion list, and not watched in the last 12 months.
 v0.3.4 - Added prompt for folder deletion feature. If $PromptForDeletion is set to $true, the user will be prompted to confirm deletion (cleanup) of a subfolder before cleaning up its contents.
 v0.3.3 - Added "Report-Only Mode" functionality. When set to $true, the script will only generate reports and will not delete files.
 v0.3.2 - Bug fix for skipped folder size display. Ensured size is correctly converted to GB and TB when necessary.
@@ -16,11 +17,13 @@ function Normalize-Name {
     return $Name -replace ":", "-" -replace "\s+", " "
 }
 
+cls
+
 ############################ Configuration ############################
 $RootFolder = "\\IPADDRESS\Plex\TVFOLDER"  # Root folder to look into for the cleanup process (Only Point to a TV folder...Movie folder being included is untested and will have disastrous consequences)
 $ExcludeFolders = @(
     "TVSHOW1",
-    "TVSHOW2"
+    "TVSHOW2",
     "TVSHOW3"
 )  # List of folders to exclude no matter what the watch status is.
 
@@ -36,6 +39,7 @@ $ReportOnly = $false  # Set this to $true for report-only mode (no file deletion
 $PromptForFolderDeletion = $true  # Set to $false to skip folder deletion prompts
 
 ############################ End of Configuration ############################
+
 # Fetch Tautulli watch history
 $StartDate = (Get-Date).AddMonths(-$TautulliMonths).ToString("yyyy-MM-dd")
 
@@ -133,10 +137,25 @@ foreach ($Folder in $Folders) {
         continue
     }
 
-    # Prompt for folder deletion (cleanup)
-    if ($PromptForFolderDeletion) {
-        $userInput = Read-Host "Do you want to clean up the folder '$FolderName' (delete files exceeding $TVShowsEpisodeCount)? (y/n)"
-        if ($userInput -eq 'y') {
+    # Only prompt for folder deletion if the folder contains more than $TVShowsEpisodeCount files
+    if ($Files.Count -gt $TVShowsEpisodeCount) {
+        # Prompt for folder deletion (cleanup)
+        if ($PromptForFolderDeletion) {
+            $userInput = Read-Host "Do you want to clean up the folder '$FolderName' (delete files exceeding $TVShowsEpisodeCount)? (y/n)"
+            if ($userInput -eq 'y') {
+                Write-Host "Cleaning up folder: $FolderName" -ForegroundColor Green
+                # Delete all files except the first three
+                $FilesToDelete = $Files | Select-Object -Skip $TVShowsEpisodeCount
+                foreach ($File in $FilesToDelete) {
+                    Write-Host "Deleting file: $($File.FullName)" -ForegroundColor Red
+                    Remove-Item -Path $File.FullName -Force
+                    $deletedFilesCount++  # Increment the counter
+                    $totalSizeDeleted += $File.Length  # Add file size (in bytes)
+                }
+            } else {
+                Write-Host "Skipping folder: $FolderName" -ForegroundColor Yellow
+            }
+        } else {
             Write-Host "Cleaning up folder: $FolderName" -ForegroundColor Green
             # Delete all files except the first three
             $FilesToDelete = $Files | Select-Object -Skip $TVShowsEpisodeCount
@@ -146,36 +165,12 @@ foreach ($Folder in $Folders) {
                 $deletedFilesCount++  # Increment the counter
                 $totalSizeDeleted += $File.Length  # Add file size (in bytes)
             }
-        } else {
-            Write-Host "Skipping folder: $FolderName" -ForegroundColor Yellow
         }
     } else {
-        Write-Host "Cleaning up folder: $FolderName" -ForegroundColor Green
-        # Delete all files except the first three
-        $FilesToDelete = $Files | Select-Object -Skip $TVShowsEpisodeCount
-        foreach ($File in $FilesToDelete) {
-            Write-Host "Deleting file: $($File.FullName)" -ForegroundColor Red
-            Remove-Item -Path $File.FullName -Force
-            $deletedFilesCount++  # Increment the counter
-            $totalSizeDeleted += $File.Length  # Add file size (in bytes)
-        }
+        Write-Host "Skipping folder with 3 or fewer files: $FolderName" -ForegroundColor Cyan
     }
 }
 
 # Convert total size from bytes to GB and TB if applicable
 $totalSizeDeletedGB = [math]::round($totalSizeDeleted / 1GB, 2)
 $totalSizeSkippedGB = [math]::round($totalSizeSkipped / 1GB, 2)
-
-# Convert to TB if needed
-if ($totalSizeSkippedGB -ge 1024) {
-    $totalSizeSkippedTB = [math]::round($totalSizeSkippedGB / 1024, 2)
-    $totalSizeSkippedOutput = "$totalSizeSkippedTB TB"
-} else {
-    $totalSizeSkippedOutput = "$totalSizeSkippedGB GB"
-}
-
-# Output the total number of deleted files and the total size in GB or TB
-Write-Host "Cleanup completed. Total files deleted: $deletedFilesCount"
-Write-Host "Cleanup Total space freed: $totalSizeDeletedGB GB"
-Write-Host "Skipping Folders. Total files skipped: $skippedFilesCount"
-Write-Host "Skipping Total space used: $totalSizeSkippedOutput" -ForegroundColor Green
